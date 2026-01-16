@@ -1,0 +1,373 @@
+/* ===== Root Layout ===== */
+.faculty-root {
+  display: flex;
+  height: 100vh;
+  background-color: #f7f8fa;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ===== Sidebar ===== */
+.faculty-sidebar {
+  width: 220px;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.faculty-sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.faculty-sidebar-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ===== Navigation ===== */
+.faculty-nav {
+  padding: 12px;
+  flex: 1;
+}
+
+.faculty-nav-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.faculty-nav-item:hover {
+  background-color: #f1f5f9;
+}
+
+.faculty-nav-item.active {
+  background-color: #e0ecff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+/* ===== Sidebar Footer ===== */
+.faculty-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.logout-btn:hover {
+  background-color: #fee2e2;
+}
+
+/* ===== Main Content ===== */
+.faculty-main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+
+/* ===== Breadcrumbs ===== */
+.breadcrumbs-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-text {
+  color: #4b5563;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.breadcrumb-text:hover {
+  background-color: #e5e7eb;
+}
+
+.breadcrumb-text.active {
+  color: #111827;
+  font-weight: 600;
+  cursor: default;
+  background-color: transparent;
+}
+
+.breadcrumb-separator {
+  margin: 0 4px;
+  color: #9ca3af;
+}
+
+/* ===== Toolbar ===== */
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.toolbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 10px;
+}
+
+.toolbar-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Secondary button */
+.toolbar-btn.secondary {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.toolbar-btn.secondary:hover {
+  background-color: #e5e7eb;
+}
+
+/* Primary button */
+.toolbar-btn.primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.toolbar-btn.primary:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* ===== Modal Card ===== */
+.modal-card {
+  background: #ffffff;
+  width: 420px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ===== Upload Area ===== */
+.upload-box {
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  padding: 30px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.upload-box:hover {
+  border-color: #2563eb;
+}
+
+.upload-content {
+  text-align: center;
+}
+
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 14px;
+  color: #374151;
+  word-break: break-word;
+}
+
+/* ===== Modal Actions ===== */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn.primary:hover {
+  background: #1d4ed8;
+}
+
+.btn.secondary {
+  background: #f3f4f6;
+}
+
+.btn.secondary:hover {
+  background: #e5e7eb;
+}
+
+
+/* ===== File Grid ===== */
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 18px;
+}
+
+/* ===== File Card ===== */
+.file-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 10px;
+  cursor: pointer;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.file-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ===== Icon ===== */
+.file-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+/* ===== File Name ===== */
+.file-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Pin ===== */
+.file-pin {
+  position: absolute;
+  top: 8px;
+  left: 8px;      /* ✅ LEFT side */
+  font-size: 14px;
+}
+
+
+/* ===== Menu Trigger (⋮) ===== */
+.file-menu-trigger {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.file-menu-trigger:hover {
+  color: #111827;
+}
+
+/* ===== Context Menu ===== */
+.context-menu {
+  position: absolute;
+  top: 30px;
+  right: 10px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 140px;
+  z-index: 10;
+}
+
+.context-item {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #111827;
+}
+
+.context-item:hover {
+  background-color: #f3f4f6;
+}
+
+.context-item.danger {
+  color: #b91c1c;
+}
+
+.context-item.danger:hover {
+  background-color: #fee2e2;
+}
+
+/* ===== Input Field ===== */
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+}

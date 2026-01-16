@@ -1,0 +1,169 @@
+/* Global responsive styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 960px;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 992px) {
+  .container {
+    max-width: 720px;
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
+  
+  /* Typography adjustments */
+  h1 {
+    font-size: 24px !important;
+  }
+  
+  h2 {
+    font-size: 20px !important;
+  }
+  
+  h3 {
+    font-size: 18px !important;
+  }
+  
+  /* Button adjustments */
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  
+  /* Form adjustments */
+  .form-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+    padding: 12px;
+  }
+  
+  /* Card adjustments */
+  .card {
+    margin: 8px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  /* Smaller screens adjustments */
+  .card {
+    margin: 5px;
+    padding: 14px;
+  }
+  
+  .btn {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 22px !important;
+  }
+  
+  h2 {
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 8px;
+  }
+  
+  h1 {
+    font-size: 20px !important;
+  }
+}
+
+/* Utility classes */
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+
+.text-center { text-align: center; }
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}

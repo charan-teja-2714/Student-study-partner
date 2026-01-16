@@ -1,0 +1,58 @@
+/* Wrapper is relative to + button */
+.attach-container {
+  position: relative;
+}
+
+/* Floating card */
+.attachment-popover {
+  position: absolute;
+  bottom: 48px;           /* ⬆ above + button */
+  left: 0;
+
+  width: 180px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+  display: flex;
+  flex-direction: column; /* 🔑 vertical layout */
+  padding: 6px;
+
+  z-index: 3000;
+}
+
+/* Individual option */
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+
+  white-space: nowrap;
+}
+
+.attachment-item:hover {
+  background: #f3f3f3;
+}
+
+/* Small arrow (like tooltip) */
+.attachment-popover::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 16px;
+
+  width: 12px;
+  height: 12px;
+  background: white;
+
+  border-left: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+
+  transform: rotate(45deg);
+}

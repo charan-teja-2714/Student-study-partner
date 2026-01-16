@@ -1,0 +1,10 @@
+.dashboard {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-content {
+  flex: 1;                 /* 🔑 remaining height after navbar */
+  overflow: hidden;        /* 🔑 prevents page scroll */
+}

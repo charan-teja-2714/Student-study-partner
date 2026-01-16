@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+langchain
+langchain-groq
+langchain-huggingface
+sentence-transformers
+faiss-cpu
+pypdf
+pdf2image
+pytesseract
+python-dotenv
+PyPDF2
+langchain-text-splitters
+python-dotenv
+python-multipart
+sqlalchemy
