@@ -1,0 +1,111 @@
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-box {
+  background: white;
+  border-radius: 8px;
+  padding: 0;
+  min-width: 400px;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dialog-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.dialog-content {
+  padding: 20px 24px;
+}
+
+.dialog-content p {
+  margin: 0 0 12px 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.warning-text {
+  color: #d73a49;
+  font-size: 14px;
+}
+
+.dialog-actions {
+  padding: 16px 24px 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel, .btn-delete {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel {
+  background: #f6f8fa;
+  color: #24292f;
+  border: 1px solid #d0d7de;
+}
+
+.btn-cancel:hover {
+  background: #f3f4f6;
+}
+
+.btn-delete {
+  background: #da3633;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #b91c1c;
+}
+
+/* Dark theme */
+.dark-theme .dialog-box {
+  background: #2d2d2d;
+}
+
+.dark-theme .dialog-header {
+  border-bottom-color: #444;
+}
+
+.dark-theme .dialog-header h3 {
+  color: #fff;
+}
+
+.dark-theme .dialog-content p {
+  color: #ccc;
+}
+
+.dark-theme .btn-cancel {
+  background: #404040;
+  color: #fff;
+  border-color: #555;
+}
+
+.dark-theme .btn-cancel:hover {
+  background: #4a4a4a;
+}

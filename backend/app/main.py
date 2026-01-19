@@ -106,7 +106,7 @@ def chat(req: ChatRequest = Body(...)):
     print("🧩 CHAT REQUEST")
     print("question:", req.question)
     print("user_id:", req.user_id)
-    print("session_id:", req.session_id)
+    print("session_id:", session_id)
 
     return {"session_id": session_id, "answer": answer}
 
@@ -227,37 +227,51 @@ def upload_faculty_pdf(file: UploadFile = File(...)):
 @app.post("/upload/student")
 def upload_student_pdf(
     user_id: int = Form(...),
-    session_id: int | None = Form(None),
+    session_id: int = Form(None),
     file: UploadFile = File(...)
 ):
+    print("📁 UPLOAD REQUEST:")
+    print(f"FILE: {file.filename if file else 'None'}")
+    print(f"USER: {user_id}")
+    print(f"SESSION: {session_id}")
     
-    print("FILE:", file)
-    print("USER:", user_id)
-    print("SESSION:", session_id)
     db = SessionLocal()
 
     # 🔹 CREATE SESSION IF NOT EXISTS
     if session_id is None:
         session = crud.create_chat_session(db, user_id)
         session_id = session.id
+        print(f"✅ Created new session: {session_id}")
     else:
         session = db.query(models.ChatSession).get(session_id)
+        if not session:
+            db.close()
+            raise HTTPException(status_code=404, detail="Session not found")
 
     if not file.filename.lower().endswith(".pdf"):
-        return {"error": "Only PDF files allowed"}
+        db.close()
+        raise HTTPException(status_code=400, detail="Only PDF files allowed")
 
     file_id = str(uuid.uuid4())
     save_path = os.path.join(UPLOAD_DIR, f"{file_id}_{file.filename}")
 
-    with open(save_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
+        with open(save_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        print(f"✅ File saved: {save_path}")
 
-    ingest_and_store_pdf(
-        pdf_path=save_path,
-        owner_type="student",
-        owner_id=user_id,
-        session_id=session_id
-    )
+        ingest_and_store_pdf(
+            pdf_path=save_path,
+            owner_type="student",
+            owner_id=user_id,
+            session_id=session_id
+        )
+        print(f"✅ PDF indexed for session {session_id}")
+        
+    except Exception as e:
+        db.close()
+        print(f"❌ Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
     db.close()
 

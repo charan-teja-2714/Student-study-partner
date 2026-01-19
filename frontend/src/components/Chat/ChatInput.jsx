@@ -188,15 +188,15 @@ const handleSubmit = async (e) => {
       )
 
       // 🔑 capture new session_id from backend
-      if (!sessionId && res.session_id) {
-        sessionId = res.session_id
+      if (!sessionId && res.data.session_id) {
+        sessionId = res.data.session_id
         onSessionCreated?.(sessionId)
       }
     }
 
-    // 🔹 Send chat message (now session exists)
+    // 🔹 Send only user message (not upload notification)
     if (message.trim()) {
-      await onSendMessage(message.trim(), sessionId)
+      await onSendMessage(message.trim(), sessionId, attachment)
     }
 
     setMessage("")

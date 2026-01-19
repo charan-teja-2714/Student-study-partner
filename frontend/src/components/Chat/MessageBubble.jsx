@@ -45,18 +45,32 @@ const MessageBubble = ({ message }) => {
     })
   }
 
-  // 🔑 Prefer backend time, fallback to frontend time
   const timeValue = message.created_at || message.timestamp
 
   return (
     <div className={`message-bubble ${message.sender}`}>
 
-      {/* AI avatar */}
       {message.sender === 'ai' && (
         <div className="message-avatar">🤖</div>
       )}
 
       <div className="message-content">
+        {/* Show attachment if present */}
+        {message.attachment && (
+          <div 
+            className="attachment-display clickable"
+            onClick={() => {
+              const link = document.createElement('a')
+              link.href = URL.createObjectURL(message.attachment.file)
+              link.download = message.attachment.name
+              link.click()
+            }}
+          >
+            📄 {message.attachment.name}
+            
+          </div>
+        )}
+        
         <p className="message-text">
           {message.content}
         </p>

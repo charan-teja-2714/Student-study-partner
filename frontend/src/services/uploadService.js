@@ -2,16 +2,19 @@ import api from "./api";
 
 /* Student PDF upload */
 export const uploadStudentPDF = async (file, userId, sessionId) => {
-  // if (!sessionId) {
-  //   throw new Error("Session ID is required for PDF upload")
-  // }
   console.log("uploadService: ", file, userId, sessionId)
   const formData = new FormData()
-  formData.append("file", file)              // 🔑 MUST be File
-  formData.append("user_id", userId) // 🔑 string-safe
-  formData.append("session_id", sessionId)
+  formData.append("file", file)
+  formData.append("user_id", String(userId))
+  
+  // Only append session_id if it exists and is not null
+  if (sessionId !== null && sessionId !== undefined) {
+    formData.append("session_id", String(sessionId))
+  }
 
-  return api.post("/upload/student", formData)
+  return api.post("/upload/student", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  })
 }
 
 // export const uploadStudentPDF = async (file, userId, sessionId) => {

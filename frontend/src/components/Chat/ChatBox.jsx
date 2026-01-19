@@ -78,7 +78,7 @@ const ChatBox = ({
   /* --------------------------------
      Send message
   --------------------------------- */
-  const handleSendMessage = async (question) => {
+  const handleSendMessage = async (question, providedSessionId = null, attachment = null) => {
     if (!question.trim() || isLoading) return
 
     setIsLoading(true)
@@ -87,6 +87,12 @@ const ChatBox = ({
       id: Date.now(),
       sender: 'user',
       content: question,
+      attachment: attachment ? {
+        name: attachment.name,
+        type: attachment.type,
+        size: attachment.size,
+        file: attachment // Keep original file for download
+      } : null,
       timestamp: new Date().toISOString()
     }
 
@@ -96,12 +102,8 @@ const ChatBox = ({
       const res = await sendMessage({
         question,
         userId,
-        sessionId: activeSessionId
+        sessionId: providedSessionId || activeSessionId
       })
-
-      // if (isNewChat && res.session_id) {
-      //   onSessionCreated(res.session_id)
-      // }
 
       if (!activeSessionId && res.session_id) {
         onSessionCreated(res.session_id)

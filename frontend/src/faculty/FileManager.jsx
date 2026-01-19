@@ -4,6 +4,7 @@ import Toolbar from "./components/Toolbar"
 import FileGrid from "./components/FileGrid"
 import UploadModal from "./components/UploadModal"
 import NewFolderModal from "./components/NewFolderModal"
+import DeleteConfirmDialog from "./components/DeleteConfirmDialog"
 
 const API_BASE = "http://127.0.0.1:8000"
 
@@ -14,6 +15,7 @@ export default function FileManager() {
 
     const [showUpload, setShowUpload] = useState(false)
     const [showNewFolder, setShowNewFolder] = useState(false)
+    const [deleteDialog, setDeleteDialog] = useState({ open: false, item: null })
 
     // logical path for backend
     const logicalPath = path.length > 1 ? path.slice(1).join("/") : ""
@@ -31,7 +33,8 @@ export default function FileManager() {
                 id: `folder-${name}-${index}`,
                 name,
                 type: "folder",
-                pinned: false
+                pinned: false,
+                fullPath: logicalPath ? `${logicalPath}/${name}` : name
             }))
 
             const fileItems = data.files.map((file) => ({
@@ -82,16 +85,28 @@ export default function FileManager() {
     }
 
     const handleDelete = async (item) => {
-        if (item.type === "file") {
-            await fetch(`${API_BASE}/faculty/${item.id}`, { method: "DELETE" })
-        } else {
-            await fetch(`${API_BASE}/faculty/folder`, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ path: item.fullPath })
-            })
+        setDeleteDialog({ open: true, item })
+    }
+
+    const confirmDelete = async () => {
+        const { item } = deleteDialog
+        
+        try {
+            if (item.type === "file") {
+                await fetch(`${API_BASE}/faculty/${item.id}`, { method: "DELETE" })
+            } else {
+                await fetch(`${API_BASE}/faculty/folder`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ path: item.fullPath })
+                })
+            }
+            fetchItems()
+        } catch (err) {
+            console.error("Delete error:", err)
+        } finally {
+            setDeleteDialog({ open: false, item: null })
         }
-        fetchItems()
     }
 
     const handleRename = async (item, newName) => {
@@ -149,6 +164,14 @@ export default function FileManager() {
                 open={showNewFolder}
                 onClose={() => setShowNewFolder(false)}
                 onCreate={handleCreateFolder}
+            />
+
+            <DeleteConfirmDialog
+                isOpen={deleteDialog.open}
+                itemName={deleteDialog.item?.name}
+                itemType={deleteDialog.item?.type}
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteDialog({ open: false, item: null })}
             />
         </>
     )

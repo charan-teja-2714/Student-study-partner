@@ -186,7 +186,7 @@ def rag_answer(query: str, user_id: int, session_id: int | None):
 
         prompt = PromptTemplate(
             template="""
-            You are an medical assistant.
+            You are an academic study assistant.
 
             Context:
             {context}

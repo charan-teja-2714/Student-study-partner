@@ -284,11 +284,25 @@ def toggle_pin_faculty_item(db: Session, item_id: int):
     return item
 
 
-def delete_faculty_item(db: Session, item_id: int):
-    item = db.query(FacultyDocument).get(item_id)
-    if not item:
+def delete_faculty_item(db: Session, path: str):
+    """
+    Delete faculty item by logical path (works for both files and folders)
+    """
+    # Delete all items that match or start with this path
+    items = (
+        db.query(FacultyDocument)
+        .filter(
+            (FacultyDocument.logical_path == path) |
+            (FacultyDocument.logical_path.startswith(path + "/"))
+        )
+        .all()
+    )
+    
+    if not items:
         return False
-
-    db.delete(item)
+    
+    for item in items:
+        db.delete(item)
+    
     db.commit()
     return True

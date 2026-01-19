@@ -25,7 +25,9 @@ export default function FileItem({
     }, [])
 
     const openFolder = () => {
-        if (item.type === "folder") onOpen(item.name)
+        if (item.type === "folder") {
+            onOpen(item.name)
+        }
     }
 
     const confirmRename = () => {
@@ -44,7 +46,9 @@ const cancelRename = () => {
 
 
     return (
-        <div className="file-card" onDoubleClick={openFolder}>
+        <div className="file-card" onDoubleClick={openFolder} onClick={(e) => {
+            if (!menuOpen) openFolder()
+        }}>
             {/* Pin */}
             {item.pinned && <div className="file-pin">📌</div>}
 
@@ -105,7 +109,8 @@ const cancelRename = () => {
 
                     <div
                         className="context-item danger"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation()
                             onDelete(item)
                             setMenuOpen(false)
                         }}
