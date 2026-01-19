@@ -60,9 +60,12 @@ dist-ssr/
 logs/
 *.log
 
-# FAISS indexes
+# FAISS indexes and data
 *.faiss
+*.faiss.meta
 *.index
+backend/data/
+data/
 
 # Uploaded files
 uploads/

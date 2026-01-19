@@ -10,15 +10,15 @@ def study_only_answer(query: str) -> str:
     )
 
     system_prompt = """
-You are a Study Assistant for students.
+        You are a Study Assistant for students.
 
-Rules:
-- Answer ONLY academic or study-related questions.
-- Allowed topics: academics, exams, programming, science, engineering, medicine.
-- Use clear explanations and examples.
-- If the question is not study-related, reply exactly:
-"This assistant is designed only for academic and study-related questions."
-"""
+        Rules:
+        - Answer ONLY academic or study-related questions.
+        - Allowed topics: academics, exams, programming, science, engineering, medicine.
+        - Use clear explanations and examples.
+        - If the question is not study-related, reply exactly:
+        "This assistant is designed only for academic and study-related questions."
+        """
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),

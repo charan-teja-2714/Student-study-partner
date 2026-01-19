@@ -57,7 +57,7 @@ def extract_text_from_pdf(pdf_path: str) -> Tuple[List[str], List[dict]]:
 # -----------------------------
 # Domain-aware chunking (from your project)
 # -----------------------------
-def medical_aware_chunking(text: str) -> List[str]:
+def study_aware_chunking(text: str) -> List[str]:
     lines = text.split("\n")
     buffer, chunks = [], []
 
@@ -104,7 +104,7 @@ def ingest_pdf(
     all_chunks, all_metadata = [], []
 
     for text, meta in zip(texts, metas):
-        chunks = medical_aware_chunking(text)
+        chunks = study_aware_chunking(text)
         for chunk in chunks:
             all_chunks.append(chunk)
             all_metadata.append({

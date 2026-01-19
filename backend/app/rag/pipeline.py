@@ -39,43 +39,6 @@ def get_llm():
     return _llm
 
 
-# -----------------------------
-# Retrieve docs from FAISS
-# -----------------------------
-# def retrieve_docs(
-#     query: str,
-#     index_path: str,
-#     metadata_path: str,
-#     top_k: int = 5
-# ) -> List[str]:
-
-#     if not os.path.exists(index_path):
-#         return []
-
-#     embeddings = get_embeddings()
-#     query_vec = embeddings.embed_query(query)
-
-#     index = create_or_load_faiss(index_path, len(query_vec))
-
-#     scores, ids = index.search(
-#         np.array([query_vec]).astype("float32"),
-#         top_k
-#     )
-
-#     if not os.path.exists(metadata_path):
-#         return []
-
-#     import pickle
-#     with open(metadata_path, "rb") as f:
-#         metadatas = pickle.load(f)
-
-#     docs = []
-#     for idx in ids[0]:
-#         if idx < len(metadatas):
-#             docs.append(metadatas[idx]["text"])
-
-#     return docs
-
 import pickle
 import faiss
 def retrieve_docs(query, index_path, metadata_path, top_k=5):
@@ -101,44 +64,6 @@ def retrieve_docs(query, index_path, metadata_path, top_k=5):
             results.append((metadatas[idx]["text"], float(score)))
 
     return results
-
-
-
-# def retrieve_docs(
-#     query: str,
-#     index_path: str,
-#     metadata_path: str,
-#     top_k: int = 5
-# ) -> List[tuple[str, float]]:
-
-#     if not os.path.exists(index_path):
-#         return []
-
-#     embeddings = get_embeddings()
-#     query_vec = embeddings.embed_query(query)
-
-#     index = create_or_load_faiss(index_path, len(query_vec))
-
-#     scores, ids = index.search(
-#         np.array([query_vec]).astype("float32"),
-#         top_k
-#     )
-
-#     if not os.path.exists(metadata_path):
-#         return []
-
-#     import pickle
-#     with open(metadata_path, "rb") as f:
-#         metadatas = pickle.load(f)
-
-#     results = []
-#     for score, idx in zip(scores[0], ids[0]):
-#         if score < 0.25:      # 🔥 relevance threshold
-#             continue
-#         if idx < len(metadatas):
-#             results.append((metadatas[idx]["text"], float(score)))
-
-#     return results
 
 
 def rag_answer(query: str, user_id: int, session_id: int | None):
