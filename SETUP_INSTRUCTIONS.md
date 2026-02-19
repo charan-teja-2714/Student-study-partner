@@ -79,6 +79,12 @@ HF_API_KEY="your-huggingface-api-key-here"
 HF_TOKEN="your-huggingface-token-here"
 ```
 
+**How to get API keys:**
+- **Groq API**: Sign up at [console.groq.com](https://console.groq.com)
+- **LangChain**: Get key from [smith.langchain.com](https://smith.langchain.com)
+- **HuggingFace**: Create account at [huggingface.co](https://huggingface.co/settings/tokens)
+- **SECRET_KEY**: Generate with `python -c "import secrets; print(secrets.token_hex(32))"`
+
 #### Create required directories:
 ```bash
 mkdir -p data/uploads
