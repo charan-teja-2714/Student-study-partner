@@ -13,7 +13,6 @@ export default function FileItem({
 
     const menuRef = useRef()
 
-    // Close menu on outside click
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -25,34 +24,30 @@ export default function FileItem({
     }, [])
 
     const openFolder = () => {
-        if (item.type === "folder") {
-            onOpen(item.name)
-        }
+        if (item.type === "folder") onOpen(item.name)
     }
 
     const confirmRename = () => {
-  if (!tempName.trim()) {
-    cancelRename()
-    return
-  }
-  onRename(item, tempName.trim())
-  setIsRenaming(false)
-}
+        if (!tempName.trim()) { cancelRename(); return }
+        onRename(item, tempName.trim())
+        setIsRenaming(false)
+    }
 
-const cancelRename = () => {
-  setTempName(item.name)
-  setIsRenaming(false)
-}
-
+    const cancelRename = () => {
+        setTempName(item.name)
+        setIsRenaming(false)
+    }
 
     return (
-        <div className="file-card" onDoubleClick={openFolder} onClick={(e) => {
-            if (!menuOpen) openFolder()
-        }}>
-            {/* Pin */}
+        <div
+            className="file-card"
+            onDoubleClick={(e) => { if (!isRenaming) openFolder() }}
+            onClick={(e) => { if (!menuOpen && !isRenaming) openFolder() }}
+        >
+            {/* Pin indicator */}
             {item.pinned && <div className="file-pin">📌</div>}
 
-            {/* Three-dot menu */}
+            {/* Three-dot menu trigger */}
             <div
                 className="file-menu-trigger"
                 onClick={(e) => {
@@ -63,18 +58,20 @@ const cancelRename = () => {
                 ⋮
             </div>
 
-            {/* Icon + name */}
+            {/* Icon */}
             <div className="file-icon">
                 {item.type === "folder" ? "📁" : "📄"}
             </div>
 
+            {/* Name / inline rename */}
             {isRenaming ? (
                 <input
                     className="rename-input"
                     value={tempName}
                     autoFocus
+                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) => setTempName(e.target.value)}
-                    onBlur={() => confirmRename()}
+                    onBlur={confirmRename}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") confirmRename()
                         if (e.key === "Escape") cancelRename()
@@ -83,29 +80,54 @@ const cancelRename = () => {
             ) : (
                 <div
                     className="file-name"
-                    onDoubleClick={() => setIsRenaming(true)}
+                    onDoubleClick={(e) => { e.stopPropagation(); setIsRenaming(true) }}
                 >
                     {item.name}
                 </div>
             )}
 
+            {/* Year badge for folders that are tagged to a specific year */}
+            {item.type === "folder" && item.year && (
+                <div className="file-year-badge" title={`For Year ${item.year}${item.section ? `, Section ${item.section}` : ""}`}>
+                    Yr {item.year}{item.section ? ` · ${item.section}` : ""}
+                </div>
+            )}
+
+            {/* Chapter badge (files only, subject shown by group header) */}
+            {item.type === "file" && item.chapter && (
+                <div className="file-chapter-badge" title={item.chapter}>
+                    {item.chapter}
+                </div>
+            )}
 
             {/* Context Menu */}
             {menuOpen && (
                 <div className="context-menu" ref={menuRef}>
-                    <div className="context-item" onClick={() => {
-                        onRename(item)
-                        setMenuOpen(false)
-                    }}>
+                    {/* Rename: activates inline editor, does NOT call onRename directly */}
+                    <div
+                        className="context-item"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setMenuOpen(false)
+                            setIsRenaming(true)
+                        }}
+                    >
                         ✏ Rename
                     </div>
 
-                    <div className="context-item" onClick={() => {
-                        onPin(item)
-                        setMenuOpen(false)
-                    }}>
-                        📌 {item.pinned ? "Unpin" : "Pin"}
-                    </div>
+                    {/* Pin: only for files (folders have synthetic IDs, not real DB IDs) */}
+                    {item.type === "file" && (
+                        <div
+                            className="context-item"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onPin(item)
+                                setMenuOpen(false)
+                            }}
+                        >
+                            📌 {item.pinned ? "Unpin" : "Pin"}
+                        </div>
+                    )}
 
                     <div
                         className="context-item danger"
@@ -117,7 +139,6 @@ const cancelRename = () => {
                     >
                         🗑 Delete
                     </div>
-
                 </div>
             )}
         </div>

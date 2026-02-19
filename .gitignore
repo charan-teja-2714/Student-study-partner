@@ -35,11 +35,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+package-lock.json
 
 # Vite
 dist/
 dist-ssr/
 *.local
+.vite/
 
 # Environment variables
 .env
@@ -64,8 +66,8 @@ logs/
 *.faiss
 *.faiss.meta
 *.index
-backend/data/
-data/
+backend/data/uploads/
+backend/data/faiss/
 
 # Uploaded files
 uploads/
@@ -75,3 +77,19 @@ student_uploads/
 # API keys
 *.key
 *.pem
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Testing
+coverage/
+.pytest_cache/
+.coverage
+
+# Build artifacts
+*.pyc
+*.pyo
+*.pyd
+.Python

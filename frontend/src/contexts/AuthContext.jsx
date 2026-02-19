@@ -13,6 +13,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user)
+      // Keep userId in sync with Firebase UID on every auth state change
+      if (user) {
+        sessionStorage.setItem('userId', user.uid)
+      }
       setLoading(false)
     })
     return unsubscribe
@@ -34,8 +38,15 @@ export const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, githubProvider)
   }
 
-  const logout = () => {
-    return signOut(auth)
+  const logout = async () => {
+    try {
+      await signOut(auth)
+      sessionStorage.removeItem('userRole')
+      sessionStorage.removeItem('userId')
+      window.location.href = '/login' // Force redirect
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   const value = {

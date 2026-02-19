@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, browserSessionPersistence, setPersistence } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: "AIzaSyATJtnsPh_m_KcAo7wy7wt8WJqy0wBYFug",
@@ -12,6 +12,11 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
+
+// Each browser tab gets its own independent auth session.
+// Survives page refresh (sessionStorage persists across F5) but tabs are isolated.
+setPersistence(auth, browserSessionPersistence).catch(console.error)
+
 export const googleProvider = new GoogleAuthProvider()
 export const githubProvider = new GithubAuthProvider()
 export default app

@@ -1,11 +1,12 @@
 import api from './api'
 
 // Send message (JSON-based)
-export const sendMessage = async ({ question, userId, sessionId }) => {
+export const sendMessage = async ({ question, userId, sessionId, chatMode = 'rag' }) => {
   const res = await api.post('/chat', {
     question,
     user_id: userId,
-    session_id: sessionId
+    session_id: sessionId,
+    chat_mode: chatMode
   })
   return res.data
 }

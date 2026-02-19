@@ -5,10 +5,10 @@
 // const Navbar = () => {
 //   const navigate = useNavigate()
 //   const location = useLocation()
-//   const userRole = localStorage.getItem('userRole')
+//   const userRole = sessionStorage.getItem('userRole')
 
 //   const handleLogout = () => {
-//     localStorage.removeItem('userRole')
+//     sessionStorage.removeItem('userRole')
 //     navigate('/login')
 //   }
 
@@ -200,20 +200,19 @@ import './Navbar.css'
 const Navbar = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const userRole = localStorage.getItem('userRole')
+  const userRole = sessionStorage.getItem('userRole')
   const [menuOpen, setMenuOpen] = useState(false)
 
   const getNavItems = () => {
     if (userRole === 'student') {
       return [
         { path: '/student', label: 'Chat', icon: '💬' },
-        { path: '/notifications', label: 'Notifications', icon: '🔔' },
+        { path: '/student/resources', label: 'Resources', icon: '📚' },
         { path: '/timetable', label: 'Timetable', icon: '📅' }
       ]
     } else {
       return [
-        { path: '/faculty', label: 'Upload', icon: '📁' },
-        { path: '/notifications', label: 'Notifications', icon: '🔔' },
+        { path: '/faculty', label: 'Dashboard', icon: '📁' },
         { path: '/timetable', label: 'Timetable', icon: '📅' }
       ]
     }

@@ -5,8 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import StudentDashboard from './pages/StudentDashboard'
 import FacultyDashboard from './pages/FacultyDashboard'
-import Notifications from './pages/Notifications'
 import Timetable from './pages/Timetable'
+import StudentResources from './pages/StudentResources'
 import FacultyLayout from './faculty/FacultyLayout'
 
 function App() {
@@ -22,14 +22,14 @@ function App() {
                 <StudentDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/student/resources" element={
+              <ProtectedRoute>
+                <StudentResources />
+              </ProtectedRoute>
+            } />
             <Route path="/faculty" element={
               <ProtectedRoute>
                 <FacultyLayout />
-              </ProtectedRoute>
-            } />
-            <Route path="/notifications" element={
-              <ProtectedRoute>
-                <Notifications />
               </ProtectedRoute>
             } />
             <Route path="/timetable" element={

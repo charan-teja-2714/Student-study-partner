@@ -10,13 +10,27 @@ import {
 import './chatLayout.css'
 
 const ChatLayout = () => {
-    const userId = Number(localStorage.getItem('userId')) || 1
+    const userId = sessionStorage.getItem('userId') || ''
 
     const [chats, setChats] = useState([])
-    const [activeChatId, setActiveChatId] = useState(null)
+
+    // Restore the last active session across page navigations
+    const [activeChatId, setActiveChatId] = useState(() => {
+        const saved = sessionStorage.getItem('chat_activeId')
+        return saved ? parseInt(saved, 10) : null
+    })
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isNewChat, setIsNewChat] = useState(false)
 
+    // Persist activeChatId so it survives page navigation
+    useEffect(() => {
+        if (activeChatId && typeof activeChatId === 'number') {
+            sessionStorage.setItem('chat_activeId', String(activeChatId))
+        } else {
+            sessionStorage.removeItem('chat_activeId')
+        }
+    }, [activeChatId])
 
     /* -------------------------------
        Load chat sessions (ONCE)
@@ -52,9 +66,27 @@ const ChatLayout = () => {
        New chat (explicit user action)
     -------------------------------- */
     const handleNewChat = () => {
-        setActiveChatId(null)     // 🔑 no active session
+        setActiveChatId(null)     // triggers useEffect → removes from sessionStorage
         setIsSidebarOpen(false)
-        setIsNewChat(true)       // optional flag (you already have it)
+        setIsNewChat(true)
+    }
+
+    /* -------------------------------
+       Called the moment user sends their
+       first message in a new chat —
+       adds a placeholder row to the sidebar
+       immediately (before API responds)
+    -------------------------------- */
+    const handleChatStarted = () => {
+        setChats(prev => {
+            if (prev.some(c => c.id === 'pending')) return prev
+            return [{
+                id: 'pending',
+                title: 'New Chat',
+                created_at: new Date().toISOString(),
+                pinned: false
+            }, ...prev]
+        })
     }
 
 
@@ -158,9 +190,11 @@ const ChatLayout = () => {
                     userId={userId}
                     activeSessionId={activeChatId}
                     isNewChat={isNewChat}
+                    onChatStarted={handleChatStarted}
                     onSessionCreated={(newSessionId) => {
                         setActiveChatId(newSessionId)
                         setIsNewChat(false)
+                        // Remove placeholder + reload with real title from backend
                         loadChats()
                     }}
                 />
@@ -184,7 +218,7 @@ export default ChatLayout
 // import './chatLayout.css'
 
 // const ChatLayout = () => {
-//     const userId = Number(localStorage.getItem('userId')) || 1
+//     const userId = Number(sessionStorage.getItem('userId')) || 1
 
 //     const [chats, setChats] = useState([])
 //     const [activeChatId, setActiveChatId] = useState(null)

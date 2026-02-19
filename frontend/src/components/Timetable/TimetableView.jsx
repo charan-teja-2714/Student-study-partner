@@ -1,78 +1,70 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { getStudentTimetable } from '../../services/timetableService'
 import './timetable.css'
 
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+const COLORS = [
+  '#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0',
+  '#fce4ec', '#e0f2f1', '#f1f8e9', '#e8eaf6',
+  '#fff8e1', '#e1f5fe'
+]
+
+/* Parse any time string to minutes-since-midnight for sorting */
+const parseTime = (t) => {
+  if (!t) return 0
+  const parts = t.trim().split(' ')
+  const [hStr, mStr] = parts[0].split(':')
+  let h = parseInt(hStr, 10)
+  const m = parseInt(mStr || '0', 10)
+  const period = parts[1]?.toUpperCase()
+  if (period === 'PM' && h !== 12) h += 12
+  if (period === 'AM' && h === 12) h = 0
+  return h * 60 + m
+}
+
 const TimetableView = () => {
-  const timeSlots = [
-    '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', 
-    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
-  ]
+  const [entries, setEntries] = useState([])
+  const [loading, setLoading] = useState(true)
+  const firebaseUid = sessionStorage.getItem('userId')
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-
-  const schedule = {
-    'Monday': {
-      '9:00 AM': { subject: 'Data Structures', duration: 2, room: 'CS-101' },
-      '2:00 PM': { subject: 'Database Management', duration: 1, room: 'CS-203' },
-      '3:00 PM': { subject: 'Lab - DBMS', duration: 2, room: 'Lab-1' }
-    },
-    'Tuesday': {
-      '10:00 AM': { subject: 'Computer Networks', duration: 2, room: 'CS-102' },
-      '1:00 PM': { subject: 'Software Engineering', duration: 1, room: 'CS-201' },
-      '4:00 PM': { subject: 'Web Development', duration: 1, room: 'CS-301' }
-    },
-    'Wednesday': {
-      '9:00 AM': { subject: 'Operating Systems', duration: 2, room: 'CS-103' },
-      '2:00 PM': { subject: 'Data Structures', duration: 1, room: 'CS-101' },
-      '3:00 PM': { subject: 'Lab - OS', duration: 2, room: 'Lab-2' }
-    },
-    'Thursday': {
-      '10:00 AM': { subject: 'Computer Networks', duration: 1, room: 'CS-102' },
-      '11:00 AM': { subject: 'Algorithm Analysis', duration: 2, room: 'CS-104' },
-      '2:00 PM': { subject: 'Software Engineering', duration: 2, room: 'CS-201' }
-    },
-    'Friday': {
-      '9:00 AM': { subject: 'Web Development', duration: 2, room: 'CS-301' },
-      '1:00 PM': { subject: 'Algorithm Analysis', duration: 1, room: 'CS-104' },
-      '3:00 PM': { subject: 'Project Work', duration: 2, room: 'CS-401' }
+  useEffect(() => {
+    if (firebaseUid) {
+      getStudentTimetable(firebaseUid)
+        .then(setEntries)
+        .catch(err => console.error('Failed to load timetable:', err))
+        .finally(() => setLoading(false))
     }
+  }, [firebaseUid])
+
+  // Color map for subjects
+  const subjectColors = {}
+  const uniqueSubjects = [...new Set(entries.map(e => e.subject))]
+  uniqueSubjects.forEach((sub, i) => {
+    subjectColors[sub] = COLORS[i % COLORS.length]
+  })
+
+  // Build schedule lookup: schedule[day][time] = entry
+  const schedule = {}
+  entries.forEach(e => {
+    if (!schedule[e.day]) schedule[e.day] = {}
+    schedule[e.day][e.time] = e
+  })
+
+  // Derive time slots dynamically from actual entries (sorted chronologically)
+  const timeSlots = [...new Set(entries.map(e => e.time))]
+    .sort((a, b) => parseTime(a) - parseTime(b))
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 60, color: '#888' }}>Loading timetable...</div>
   }
 
-  const getSubjectColor = (subject) => {
-    const colors = {
-      'Data Structures': '#e3f2fd',
-      'Database Management': '#f3e5f5',
-      'Computer Networks': '#e8f5e8',
-      'Software Engineering': '#fff3e0',
-      'Operating Systems': '#fce4ec',
-      'Algorithm Analysis': '#e0f2f1',
-      'Web Development': '#f1f8e9',
-      'Project Work': '#e8eaf6'
-    }
-    return colors[subject] || '#f5f5f5'
-  }
-
-  const renderTimeSlot = (day, time) => {
-    const classInfo = schedule[day]?.[time]
-    
-    if (!classInfo) {
-      return <div className="time-slot empty"></div>
-    }
-
+  if (entries.length === 0) {
     return (
-      <div 
-        className="time-slot filled"
-        style={{ 
-          backgroundColor: getSubjectColor(classInfo.subject),
-          gridRowEnd: `span ${classInfo.duration}`
-        }}
-      >
-        <div className="class-info">
-          <div className="subject-name">{classInfo.subject}</div>
-          <div className="class-details">
-            <span className="room">{classInfo.room}</span>
-            <span className="duration">{classInfo.duration}h</span>
-          </div>
-        </div>
+      <div style={{ textAlign: 'center', padding: 80 }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>📅</div>
+        <h3 style={{ color: '#555' }}>No timetable available</h3>
+        <p style={{ color: '#888' }}>Your faculty hasn't set up the timetable for your section yet.</p>
       </div>
     )
   }
@@ -83,10 +75,8 @@ const TimetableView = () => {
         <div className="timetable-header">
           <h2>Weekly Timetable</h2>
           <div className="current-week">
-            Week of {new Date().toLocaleDateString('en-US', { 
-              month: 'long', 
-              day: 'numeric', 
-              year: 'numeric' 
+            Week of {new Date().toLocaleDateString('en-US', {
+              month: 'long', day: 'numeric', year: 'numeric'
             })}
           </div>
         </div>
@@ -94,44 +84,53 @@ const TimetableView = () => {
         <div className="timetable-grid">
           {/* Header row */}
           <div className="grid-header time-header">Time</div>
-          {days.map(day => (
+          {DAYS.map(day => (
             <div key={day} className="grid-header day-header">{day}</div>
           ))}
 
-          {/* Time slots */}
+          {/* One row per unique scheduled time */}
           {timeSlots.map(time => (
             <React.Fragment key={time}>
               <div className="time-label">{time}</div>
-              {days.map(day => (
-                <div key={`${day}-${time}`} className="grid-cell">
-                  {renderTimeSlot(day, time)}
-                </div>
-              ))}
+              {DAYS.map(day => {
+                const entry = schedule[day]?.[time]
+                return (
+                  <div key={`${day}-${time}`} className="grid-cell">
+                    {entry ? (
+                      <div
+                        className="time-slot filled"
+                        style={{ backgroundColor: subjectColors[entry.subject] || '#f5f5f5' }}
+                      >
+                        <div className="class-info">
+                          <div className="subject-name">{entry.subject}</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="time-slot empty" />
+                    )}
+                  </div>
+                )
+              })}
             </React.Fragment>
           ))}
         </div>
 
-        <div className="timetable-legend">
-          <h4>Legend</h4>
-          <div className="legend-items">
-            {Object.keys(schedule).reduce((subjects, day) => {
-              Object.values(schedule[day]).forEach(classInfo => {
-                if (!subjects.includes(classInfo.subject)) {
-                  subjects.push(classInfo.subject)
-                }
-              })
-              return subjects
-            }, []).map(subject => (
-              <div key={subject} className="legend-item">
-                <div 
-                  className="legend-color"
-                  style={{ backgroundColor: getSubjectColor(subject) }}
-                ></div>
-                <span>{subject}</span>
-              </div>
-            ))}
+        {uniqueSubjects.length > 0 && (
+          <div className="timetable-legend">
+            <h4>Legend</h4>
+            <div className="legend-items">
+              {uniqueSubjects.map(subject => (
+                <div key={subject} className="legend-item">
+                  <div
+                    className="legend-color"
+                    style={{ backgroundColor: subjectColors[subject] }}
+                  />
+                  <span>{subject}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

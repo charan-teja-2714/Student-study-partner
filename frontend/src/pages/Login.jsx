@@ -1,6 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { saveUserProfile, getUserProfile, getSections } from '../services/userService'
+
+const DEPARTMENTS = [
+  'Computer Science', 'Electronics', 'Mechanical', 'Civil',
+  'Electrical', 'Information Technology', 'Chemical', 'Biotechnology',
+  'AI & ML', 'AI & DS'
+]
+
+const YEARS = [1, 2, 3, 4]
 
 const Login = () => {
   const [username, setUsername] = useState('')
@@ -12,25 +21,82 @@ const Login = () => {
   const [isSignup, setIsSignup] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Academic fields
+  const [department, setDepartment] = useState('')
+  const [year, setYear] = useState('')
+  const [section, setSection] = useState('')
+  const [availableSections, setAvailableSections] = useState([])
+
   const navigate = useNavigate()
   const { signup, login, loginWithGoogle, loginWithGithub } = useAuth()
+
+  // Load sections when department + year selected
+  useEffect(() => {
+    if (department && year) {
+      getSections(department, parseInt(year)).then(data => {
+        setAvailableSections(data)
+      }).catch(() => setAvailableSections([]))
+    }
+  }, [department, year])
+
+  const saveProfileAndNavigate = async (firebaseUser) => {
+    const uid = firebaseUser.uid || firebaseUser.user?.uid
+    sessionStorage.setItem('userRole', selectedRole)
+    sessionStorage.setItem('userId', uid)
+
+    try {
+      // Try to get existing profile first (for login)
+      if (!isSignup) {
+        const existing = await getUserProfile(uid)
+        if (existing) {
+          // Role mismatch: block login and show error
+          if (existing.role !== selectedRole) {
+            setError(`This account is registered as "${existing.role}". Please select the correct role to continue.`)
+            setLoading(false)
+            return
+          }
+          sessionStorage.setItem('userProfile', JSON.stringify(existing))
+          navigate(existing.role === 'student' ? '/student' : '/faculty')
+          return
+        }
+      }
+    } catch (e) {
+      // Profile doesn't exist yet, create one
+    }
+
+    // Save profile (signup or first social login)
+    const profileData = {
+      firebase_uid: uid,
+      role: selectedRole,
+      display_name: username || firebaseUser.displayName || firebaseUser.user?.displayName || '',
+      email: email || firebaseUser.email || firebaseUser.user?.email || '',
+      department: department || null,
+      year: year ? parseInt(year) : null,
+      section: selectedRole === 'student' ? (section || null) : null
+    }
+
+    try {
+      const saved = await saveUserProfile(profileData)
+      sessionStorage.setItem('userProfile', JSON.stringify(saved))
+    } catch (e) {
+      console.error('Failed to save profile:', e)
+    }
+
+    navigate(selectedRole === 'student' ? '/student' : '/faculty')
+  }
 
   const handleSocialLogin = async (provider) => {
     try {
       setError('')
       setLoading(true)
+      let result
       if (provider === 'google') {
-        await loginWithGoogle()
+        result = await loginWithGoogle()
       } else {
-        await loginWithGithub()
+        result = await loginWithGithub()
       }
-      localStorage.setItem('userRole', selectedRole)
-
-      if (selectedRole === 'student') {
-        navigate('/student')
-      } else {
-        navigate('/faculty')
-      }
+      await saveProfileAndNavigate(result)
     } catch (error) {
       setError('Failed to log in')
     }
@@ -58,6 +124,14 @@ const Login = () => {
         setError('Password must be at least 6 characters')
         return
       }
+      if (!department) {
+        setError('Please select your department')
+        return
+      }
+      if (selectedRole === 'student' && (!year || !section)) {
+        setError('Please select year and section')
+        return
+      }
     } else {
       if (!email || !password) {
         setError('Please fill in all fields')
@@ -69,19 +143,14 @@ const Login = () => {
       setError('')
       setLoading(true)
 
+      let result
       if (isSignup) {
-        await signup(email, password)
+        result = await signup(email, password)
       } else {
-        await login(email, password)
+        result = await login(email, password)
       }
 
-      localStorage.setItem('userRole', selectedRole)
-
-      if (selectedRole === 'student') {
-        navigate('/student')
-      } else {
-        navigate('/faculty')
-      }
+      await saveProfileAndNavigate(result)
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
         setError('Email already in use')
@@ -198,6 +267,67 @@ const Login = () => {
               </div>
             )}
 
+            {isSignup && (
+              <>
+                <div className="form-group mb-20">
+                  <select
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    className="form-input"
+                    required
+                  >
+                    <option value="">Select Department</option>
+                    {DEPARTMENTS.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedRole === 'student' && (
+                  <>
+                    <div className="form-group mb-20">
+                      <select
+                        value={year}
+                        onChange={(e) => setYear(e.target.value)}
+                        className="form-input"
+                        required
+                      >
+                        <option value="">Select Year</option>
+                        {YEARS.map(y => (
+                          <option key={y} value={y}>Year {y}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group mb-20">
+                      {availableSections.length > 0 ? (
+                        <select
+                          value={section}
+                          onChange={(e) => setSection(e.target.value)}
+                          className="form-input"
+                          required
+                        >
+                          <option value="">Select Section</option>
+                          {availableSections.map(s => (
+                            <option key={s.id} value={s.section_name}>{s.section_name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="Section (e.g., A, B, C)"
+                          value={section}
+                          onChange={(e) => setSection(e.target.value)}
+                          className="form-input"
+                          required
+                        />
+                      )}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
             <div className="social-login mb-20">
               <button
                 type="button"
@@ -246,7 +376,7 @@ const Login = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .login-container {
           min-height: 100vh;
           display: flex;

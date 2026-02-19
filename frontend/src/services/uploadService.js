@@ -38,10 +38,19 @@ export const uploadStudentPDF = async (file, userId, sessionId) => {
 // }
 
 
-/* Faculty PDF upload */
-export const uploadFacultyPDF = async (file) => {
+/* Faculty PDF upload with metadata */
+export const uploadFacultyPDF = async (file, metadata = {}) => {
   const formData = new FormData();
   formData.append("file", file);
+  if (metadata.faculty_uid) formData.append("faculty_uid", metadata.faculty_uid);
+  if (metadata.subject_id) formData.append("subject_id", String(metadata.subject_id));
+  if (metadata.chapter) formData.append("chapter", metadata.chapter);
+  if (metadata.department) formData.append("department", metadata.department);
+  if (metadata.year) formData.append("year", String(metadata.year));
+  if (metadata.section) formData.append("section", metadata.section);
+  if (metadata.path !== undefined) formData.append("path", metadata.path);
 
-  return api.post("/upload/faculty", formData);
+  return api.post("/upload/faculty", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
 };

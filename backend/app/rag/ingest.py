@@ -33,23 +33,16 @@ def extract_text_from_pdf(pdf_path: str) -> Tuple[List[str], List[dict]]:
     for page_num, page in enumerate(reader.pages):
         try:
             text = page.extract_text()
-        except Exception:
-            text = None
-
-        if text and text.strip():
-            texts.append(text)
+            if text and text.strip():
+                texts.append(text)
+                metadata.append({"page": page_num, "ocr": False})
+            else:
+                # Skip OCR if no text found
+                texts.append("[No text extracted from this page]")
+                metadata.append({"page": page_num, "ocr": False})
+        except Exception as e:
+            texts.append(f"[Error extracting text: {str(e)}]")
             metadata.append({"page": page_num, "ocr": False})
-        else:
-            # OCR fallback
-            images = convert_from_path(
-                pdf_path,
-                first_page=page_num + 1,
-                last_page=page_num + 1
-            )
-            for img in images:
-                ocr_text = pytesseract.image_to_string(img)
-                texts.append(ocr_text)
-                metadata.append({"page": page_num, "ocr": True})
 
     return texts, metadata
 
@@ -101,6 +94,12 @@ def ingest_pdf(
 
     texts, metas = extract_text_from_pdf(pdf_path)
 
+    # Strip UUID prefix for clean citation names.
+    # Files are saved as "{uuid}_{original_filename}"; UUID is 36 chars with dashes.
+    basename = os.path.basename(pdf_path)
+    parts = basename.split("_", 1)
+    clean_source = parts[1] if len(parts) == 2 and len(parts[0]) == 36 else basename
+
     all_chunks, all_metadata = [], []
 
     for text, meta in zip(texts, metas):
@@ -113,7 +112,7 @@ def ingest_pdf(
                 "session_id": session_id,
                 "page": meta["page"],
                 "ocr": meta["ocr"],
-                "source": os.path.basename(pdf_path)
+                "source": clean_source
             })
 
     return all_chunks, all_metadata

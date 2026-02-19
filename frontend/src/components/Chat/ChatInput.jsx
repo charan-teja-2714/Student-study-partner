@@ -101,6 +101,7 @@ import { uploadStudentPDF } from '../../services/uploadService'
 
 const ChatInput = ({
   onSendMessage,
+  onFileUploaded,
   disabled,
   onSessionCreated,
   userId,
@@ -175,32 +176,43 @@ const handleSubmit = async (e) => {
   e.preventDefault()
   if (!message.trim() && !attachment) return
 
+  const msgToSend = message.trim()
+  const attachmentToSend = attachment
   let sessionId = activeSessionId
 
-  try {
-    // 🔹 Upload first (session auto-created if needed)
-    if (attachment) {
-      setUploading(true)
-      const res = await uploadStudentPDF(
-        attachment,
-        userId,
-        sessionId
-      )
+  // Clear input immediately so the user can type the next message
+  setMessage("")
+  setAttachment(null)
 
-      // 🔑 capture new session_id from backend
-      if (!sessionId && res.data.session_id) {
-        sessionId = res.data.session_id
+  try {
+    if (attachmentToSend) {
+      setUploading(true)
+      let uploadRes
+      try {
+        uploadRes = await uploadStudentPDF(attachmentToSend, userId, sessionId)
+      } catch (uploadErr) {
+        console.error("Upload failed:", uploadErr)
+        onFileUploaded?.(sessionId, null) // signal failure to ChatBox
+        return
+      }
+
+      // Always capture session_id from response
+      // (backend may create a new one if sessionId was null)
+      const returnedSessionId = uploadRes?.data?.session_id
+      if (returnedSessionId && returnedSessionId !== sessionId) {
+        sessionId = returnedSessionId
         onSessionCreated?.(sessionId)
+      }
+
+      // If no message was typed, notify ChatBox that a file was indexed
+      if (!msgToSend) {
+        onFileUploaded?.(sessionId, attachmentToSend.name)
       }
     }
 
-    // 🔹 Send only user message (not upload notification)
-    if (message.trim()) {
-      await onSendMessage(message.trim(), sessionId, attachment)
+    if (msgToSend) {
+      await onSendMessage(msgToSend, sessionId, attachmentToSend)
     }
-
-    setMessage("")
-    setAttachment(null)
 
   } finally {
     setUploading(false)

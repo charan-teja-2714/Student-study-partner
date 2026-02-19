@@ -28,13 +28,12 @@
 
 .timetable-grid {
   display: grid;
-  grid-template-columns: 100px repeat(5, 1fr);
-  gap: 1px;
-  background: #e9ecef;
-  border: 1px solid #e9ecef;
+  grid-template-columns: 90px repeat(6, 1fr);
+  gap: 0;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
   overflow: hidden;
-  min-width: 700px;
+  min-width: 820px;
 }
 
 .grid-header {
@@ -44,6 +43,12 @@
   text-align: center;
   color: #333;
   font-size: 14px;
+  border-bottom: 2px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+}
+
+.grid-header:last-child {
+  border-right: none;
 }
 
 .time-header {
@@ -65,12 +70,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-bottom: 1px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
 }
 
 .grid-cell {
   background: white;
   min-height: 60px;
   position: relative;
+  border-bottom: 1px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+}
+
+.grid-cell:nth-child(7n) {
+  border-right: none;
 }
 
 .time-slot {
@@ -164,8 +177,8 @@
   }
   
   .timetable-grid {
-    grid-template-columns: 80px repeat(5, 1fr);
-    min-width: 600px;
+    grid-template-columns: 70px repeat(6, 1fr);
+    min-width: 700px;
   }
   
   .grid-header {
@@ -197,8 +210,8 @@
 
 @media (max-width: 480px) {
   .timetable-grid {
-    grid-template-columns: 60px repeat(5, 1fr);
-    min-width: 500px;
+    grid-template-columns: 55px repeat(6, 1fr);
+    min-width: 580px;
   }
   
   .grid-header {

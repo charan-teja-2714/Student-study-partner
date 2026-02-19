@@ -319,6 +319,7 @@
   font-size: 16px;
   cursor: pointer;
   color: #6b7280;
+  width: 18px;
 }
 
 .file-menu-trigger:hover {
@@ -355,6 +356,125 @@
 
 .context-item.danger:hover {
   background-color: #fee2e2;
+}
+
+/* ===== Subject Group Header ===== */
+.subject-file-group {
+  margin-bottom: 24px;
+}
+
+.subject-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  background: #f1f5f9;
+  border-left: 3px solid #2563eb;
+  padding: 6px 12px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.subject-group-icon {
+  font-size: 16px;
+}
+
+/* ===== Subject File Count Badge ===== */
+.subject-file-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  background: #e5e7eb;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+/* ===== Chapter Sub-group ===== */
+.chapter-file-group {
+  margin-bottom: 14px;
+  margin-left: 4px;
+}
+
+.chapter-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  padding: 5px 12px;
+  margin-bottom: 10px;
+  border-left: 2px solid #93c5fd;
+  background: #f8faff;
+  border-radius: 0 5px 5px 0;
+}
+
+.chapter-group-header span:nth-child(2) {
+  flex: 1;
+}
+
+.chapter-file-count {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* ===== Year Badge on Folder Card ===== */
+.file-year-badge {
+  font-size: 10px;
+  color: #0369a1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+/* ===== Chapter Badge on File Card ===== */
+.file-chapter-badge {
+  font-size: 10px;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 4px;
+  padding: 2px 6px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Empty state ===== */
+.file-grid-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+}
+
+.file-grid-empty p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ===== Inline Rename Input ===== */
+.rename-input {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid #2563eb;
+  border-radius: 4px;
+  padding: 3px 6px;
+  outline: none;
+  color: #111827;
+  background: #fff;
 }
 
 /* ===== Input Field ===== */

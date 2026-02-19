@@ -38,7 +38,10 @@ def ingest_and_store_pdf(
     pdf_path: str,
     owner_type: str,          # "faculty" or "student"
     owner_id: int | None,
-    session_id: int | None
+    session_id: int | None = None,
+    department: str = None,
+    year: int = None,
+    section: str = None
 ):
     embeddings = get_embeddings()
     print("🔢 Embedding dim:", len(embeddings.embed_query("test")))
@@ -97,12 +100,15 @@ def ingest_and_store_pdf(
     vectors = np.array(
         embeddings.embed_documents(chunks)
     ).astype("float32")
-    # faiss.normalize_L2(vectors)
+    faiss.normalize_L2(vectors)  # normalize so IndexFlatIP = cosine similarity
     index.add(vectors)
     print("📦 Index size AFTER:", index.ntotal)
 
     for meta, text in zip(metadatas, chunks):
         meta["text"] = text
+        if department: meta["department"] = department
+        if year: meta["year"] = year
+        if section: meta["section"] = section
         metadata_store.append(meta)
 
     # ---------------------------------
