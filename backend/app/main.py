@@ -232,6 +232,21 @@ def chat(req: ChatRequest = Body(...)):
         if req.question == "__create_session__":
             return {"session_id": session_id, "answer": "", "sources": []}
 
+        # Build conversation history BEFORE saving the current user message
+        # so we only pass prior turns (last 6 messages = 3 exchanges).
+        all_prior = crud.get_session_messages(db, session_id)
+        MAX_HISTORY_MSG_LEN = 600
+        history = [
+            {
+                "sender": m.sender,
+                "content": (m.content[:MAX_HISTORY_MSG_LEN] + "…"
+                            if len(m.content) > MAX_HISTORY_MSG_LEN
+                            else m.content)
+            }
+            for m in all_prior[-6:]
+            if m.sender in ("user", "ai")   # skip any system-only entries
+        ]
+
         # Save user message
         crud.add_message(db, session_id, "user", req.question)
 
@@ -249,7 +264,8 @@ def chat(req: ChatRequest = Body(...)):
             chat_mode=req.chat_mode,
             department=department,
             year=year,
-            section=section
+            section=section,
+            history=history
         )
 
         answer = result["answer"]
@@ -481,6 +497,14 @@ def upload_student_pdf(
     except Exception as e:
         db.close()
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+    # Persist upload confirmation as a chat message so it appears after reload
+    crud.add_message(
+        db, session_id, "ai",
+        f"📄 **{file.filename}** has been uploaded and indexed successfully. "
+        f"You can now ask questions about it, request a summary, or — if this is your resume — "
+        f"ask for interview preparation, likely interview questions, or improvement suggestions."
+    )
 
     db.close()
     return {"message": "PDF uploaded", "session_id": session_id}

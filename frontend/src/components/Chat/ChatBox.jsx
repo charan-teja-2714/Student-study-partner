@@ -23,6 +23,10 @@ const ChatBox = ({
   const [chatMode, setChatMode] = useState('rag')
   const [previewSource, setPreviewSource] = useState(null)
   const messagesEndRef = useRef(null)
+  // Tracks whether the current activeSessionId change was caused by THIS ChatBox
+  // creating a new session while sending a message. When true, we skip the DB
+  // reload so the locally-added user message isn't wiped before the API responds.
+  const justCreatedRef = useRef(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -33,6 +37,14 @@ const ChatBox = ({
   useEffect(() => {
     if (!activeSessionId) {
       setMessages([])
+      return
+    }
+
+    // If we just created this session while sending a message, skip the DB reload.
+    // The user message is already in local state and the API hasn't saved it yet.
+    // This prevents the locally-added first message from being wiped.
+    if (justCreatedRef.current) {
+      justCreatedRef.current = false
       return
     }
 
@@ -69,7 +81,9 @@ const ChatBox = ({
     }
   }
 
-  // Called by ChatInput when a PDF is uploaded with no message
+  // Called by ChatInput when a PDF is uploaded with no message typed.
+  // On success the backend saves the confirmation to DB, so the useEffect
+  // DB reload (triggered by activeSessionId change) will pick it up.
   const handleFileUploaded = (sessionId, filename) => {
     if (!filename) {
       setMessages(prev => [...prev, {
@@ -80,13 +94,8 @@ const ChatBox = ({
       return
     }
     setChatMode('rag')
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      sender: 'ai',
-      content: `📄 **${filename}** uploaded and indexed. You can now ask questions about it. **RAG Mode** is active.`,
-      sources: [],
-      timestamp: new Date().toISOString()
-    }])
+    // Success message comes from DB reload (backend persists it).
+    // No local message needed here — avoids duplicate on reload.
   }
 
   const handleSendMessage = async (question, providedSessionId = null, attachment = null) => {
@@ -94,6 +103,11 @@ const ChatBox = ({
 
     setIsLoading(true)
     setIsWaiting(true)
+
+    // Mark that we are about to create/use a session while sending a message.
+    // This prevents the useEffect from wiping the locally-added user message
+    // when activeSessionId changes (either from file upload or API response).
+    justCreatedRef.current = true
 
     // If this is the very first message, show placeholder in sidebar immediately
     if (!activeSessionId) {

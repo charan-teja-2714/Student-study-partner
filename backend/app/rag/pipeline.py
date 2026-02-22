@@ -19,11 +19,19 @@ load_dotenv()
 _SUMMARY_RE = re.compile(
     r'\b(summarize|summarise|summary|summaries|summarization|'
     r'overview|brief|brief summary|outline|main points|key points|'
-    r'what is this (about|document|paper|report|file)|'
-    r'describe (this|the) (document|paper|report|file)|'
+    r'what is this (about|document|paper|report|file|resume|cv)|'
+    r'describe (this|the) (document|paper|report|file|resume|cv)|'
     r'introduction to|what does this (say|cover|discuss)|'
-    r'explain this (document|paper|report)|'
-    r'give (me )?(a )?(summary|overview|brief))\b',
+    r'explain this (document|paper|report|resume|cv)|'
+    r'give (me )?(a )?(summary|overview|brief)|'
+    r'help me (with|prepare for|practice) (my )?(interview|resume|cv)|'
+    r'review (my )?(resume|cv)|'
+    r'what are my (skills|strengths|experiences|qualifications)|'
+    r'suggest improvements (to|for) (my )?(resume|cv)?|'
+    r'interview questions (for|based on)|'
+    r'prepare me for (an? )?(interview|job)|'
+    r'based on my (resume|cv)|'
+    r'improve my (resume|cv))\b',
     re.IGNORECASE
 )
 
@@ -106,16 +114,30 @@ def retrieve_docs(query, index_path, metadata_path, top_k=5,
     return results
 
 
+def _format_history(history: list) -> str:
+    """Convert list of {sender, content} dicts to a readable conversation block."""
+    if not history:
+        return ""
+    lines = ["Previous conversation:"]
+    for msg in history:
+        role = "Student" if msg["sender"] == "user" else "Assistant"
+        lines.append(f"{role}: {msg['content']}")
+    lines.append("")   # blank line separator before current question
+    return "\n".join(lines) + "\n"
+
+
 def rag_answer(query: str, user_id, session_id: int | None,
                chat_mode: str = "rag",
-               department: str = None, year: int = None, section: str = None):
+               department: str = None, year: int = None, section: str = None,
+               history: list = None):
     llm = get_llm()
+    history = history or []
 
     # ----------------------------
     # GENERAL MODE: Skip FAISS entirely
     # ----------------------------
     if chat_mode == "general":
-        return {"answer": study_only_answer(query), "sources": []}
+        return {"answer": study_only_answer(query, history=history), "sources": []}
 
     SIMILARITY_THRESHOLD = 0.35
 
@@ -178,18 +200,25 @@ def rag_answer(query: str, user_id, session_id: int | None,
                     "page_number": r["page"] + 1  # 1-indexed for display
                 })
 
+        history_text = _format_history(history)
+
         prompt = PromptTemplate(
-            template="""You are an academic assistant helping students understand their course materials.
+            template="""You are a helpful assistant for students, supporting both academic learning and career development.
 
 The following excerpts are from the uploaded document:
 ---
 {context}
 ---
 
-Student's Question: {question}
+{history}Student's Current Question: {question}
 
 Instructions:
-- Answer using ONLY the information in the excerpts above.
+- Use the conversation history above (if any) to understand follow-up questions and references like "explain more", "what did you mean", "give an example of point 2", etc.
+- Answer using ONLY the information in the document excerpts above.
+- If the document appears to be a resume or CV:
+  - Help with interview preparation, career advice, likely interview questions, or resume improvements based on the content shown.
+  - Highlight key skills, experiences, and qualifications you see.
+  - Suggest specific improvements if asked.
 - If the question asks to summarize or give an overview, synthesize the excerpts into a coherent summary.
 - Do NOT add facts or details from outside the provided excerpts.
 - If the excerpts cover the topic, give a clear, well-structured answer.
@@ -198,12 +227,13 @@ Instructions:
 - Do not invent, guess, or infer details not explicitly stated in the excerpts.
 
 Answer:""",
-            input_variables=["context", "question"]
+            input_variables=["context", "question", "history"]
         )
 
         answer = (prompt | llm).invoke({
             "context": context,
-            "question": query
+            "question": query,
+            "history": history_text
         }).content.strip()
 
         return {"answer": answer, "sources": sources}
@@ -211,4 +241,4 @@ Answer:""",
     # ----------------------------
     # GENERAL STUDY ANSWER (fallback when no relevant docs found)
     # ----------------------------
-    return {"answer": study_only_answer(query), "sources": []}
+    return {"answer": study_only_answer(query, history=history), "sources": []}

@@ -4,7 +4,9 @@
       "Bash(python:*)",
       "Bash(powershell -Command:*)",
       "Bash(powershell -File:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch:*)",
+      "Bash(git push:*)"
     ]
   }
 }
